@@ -503,23 +503,23 @@
                     <div class="input-header">服务器信息</div>
                     <div class="input-field">
                         <label for="processor">处理器：</label>
-                        <input type="text" id="processor" value="Intel Core i9-10900K">
+                        <input type="text" id="processor" value="Intel i9-7900X">
                     </div>
                     <div class="input-field">
                         <label for="mainboard">主板：</label>
-                        <input type="text" id="mainboard" value="Z590">
+                        <input type="text" id="mainboard" value="C9X299-PGF">
                     </div>
                     <div class="input-field">
                         <label for="memory">内存：</label>
-                        <input type="text" id="memory" value="DDR4 3200">
+                        <input type="text" id="memory" value="DDR4 3200 16G x2">
                     </div>
                     <div class="input-field">
                         <label for="gpu">显卡：</label>
-                        <input type="text" id="gpu" value="NVIDIA GeForce RTX 3060">
+                        <input type="text" id="gpu" value="Tesla T10 125W x4">
                     </div>
                     <div class="input-field">
                         <label for="system">系统：</label>
-                        <input type="text" id="system" value="Windows 10">
+                        <input type="text" id="system" value="Ubuntu 24.04.3 LTS">
                     </div>
                 </div>
                 <!-- 推理引擎信息 -->
@@ -527,11 +527,11 @@
                     <div class="input-header">推理引擎信息</div>
                     <div class="input-field">
                         <label for="engineName">引擎名称：</label>
-                        <input type="text" id="engineName" value="LM Studio">
+                        <input type="text" id="engineName" value="vLLM">
                     </div>
                     <div class="input-field">
                         <label for="engineModelName">模型名称：</label>
-                        <input type="text" id="engineModelName" value="Qwen3-8B-Q4_K_M">
+                        <input type="text" id="engineModelName" value="cpatonn/Seed-OSS-36B-Instruct-AWQ-8bit">
                     </div>
                 </div>
                 <!-- 接口信息 -->
@@ -539,11 +539,11 @@
                     <div class="input-header">接口信息</div>
                     <div class="input-field">
                         <label for="requestUrl">请求地址：</label>
-                        <input type="text" id="requestUrl" value="http://127.0.0.1:1234/v1/chat/completions">
+                        <input type="text" id="requestUrl" value="http://192.168.9.99:8080/v1/chat/completions">
                     </div>
                     <div class="input-field">
                         <label for="modelName">模型名称：</label>
-                        <input type="text" id="modelName" value="qwen/qwen3-8b">
+                        <input type="text" id="modelName" value="Seed-OSS-36B-Instruct">
                     </div>
                     <div class="input-field">
                         <label for="apiKey">请求密钥：</label>
@@ -555,15 +555,15 @@
                     <div class="input-header">测试信息</div>
                     <div class="input-field">
                         <label for="minInputLength">输入长度最小值：</label>
-                        <input type="number" id="minInputLength" value="128">
+                        <input type="number" id="minInputLength" value="10000">
                     </div>
                     <div class="input-field">
                         <label for="maxInputLength">输入长度最大值：</label>
-                        <input type="number" id="maxInputLength" value="1024">
+                        <input type="number" id="maxInputLength" value="50000">
                     </div>
                     <div class="input-field">
                         <label for="step">输入长度步长：</label>
-                        <input type="number" id="step" value="128">
+                        <input type="number" id="step" value="10000">
                     </div>
                     <div class="input-field">
                         <label for="maxOutputLength">输出长度：</label>
@@ -731,8 +731,6 @@
                         { role: 'user', content: userPrompt }
                     ],
                     max_tokens: 3,
-                    temperature: 0.1,
-                    top_p: 0.1,
                     stream: true
                 });
                 const response = await fetch(requestUrl, {
@@ -806,8 +804,6 @@
                             { role: 'user', content: userPrompt }
                         ],
                         max_tokens: maxOutputLength,
-                        temperature: 1,
-                        top_p: 0.1,
                         stream: true
                     });
 
@@ -879,16 +875,22 @@
                             if (json.choices && json.choices[0] && json.choices[0].delta) {
                                 // console.log(logTime(), 'delta：', json.choices[0].delta);
 
-                                if (json.choices[0].delta.content) {
+                                // 推理过程
+                                if (json.choices[0].delta.reasoning_content) {
+                                    output += json.choices[0].delta.reasoning_content;
+                                    streamTokens++;
+                                }
+                                // 全部回复内容或推理后的正式回复内容
+                                else if (json.choices[0].delta.content) {
                                     output += json.choices[0].delta.content;
                                     streamTokens++;
 
-                                    // console.log(logTime(), 'content：', streamTokens, json.choices[0].delta.content);
-
-                                    if (!firstTokenTime) {
+                                    // console.log(logTime(), 'content：', streamTokens, json.choices[0].delta.content);     
+                                }
+                                
+                                if (output && !firstTokenTime) {
                                         firstTokenTime = responseTime;
                                         console.log(logTime(), '接收到首字的时间：', formatTime(firstTokenTime));
-                                    }
                                 }
                             }
                             if (json.usage) {
