@@ -503,23 +503,23 @@
                     <div class="input-header">服务器信息</div>
                     <div class="input-field">
                         <label for="processor">处理器：</label>
-                        <input type="text" id="processor" value="Intel i9-7900X">
+                        <input type="text" id="processor" value="">
                     </div>
                     <div class="input-field">
                         <label for="mainboard">主板：</label>
-                        <input type="text" id="mainboard" value="C9X299-PGF">
+                        <input type="text" id="mainboard" value="">
                     </div>
                     <div class="input-field">
                         <label for="memory">内存：</label>
-                        <input type="text" id="memory" value="DDR4 3200 16G x2">
+                        <input type="text" id="memory" value="">
                     </div>
                     <div class="input-field">
                         <label for="gpu">显卡：</label>
-                        <input type="text" id="gpu" value="Tesla T10 125W x4">
+                        <input type="text" id="gpu" value="">
                     </div>
                     <div class="input-field">
                         <label for="system">系统：</label>
-                        <input type="text" id="system" value="Ubuntu 24.04.3 LTS">
+                        <input type="text" id="system" value="">
                     </div>
                 </div>
                 <!-- 推理引擎信息 -->
@@ -527,11 +527,11 @@
                     <div class="input-header">推理引擎信息</div>
                     <div class="input-field">
                         <label for="engineName">引擎名称：</label>
-                        <input type="text" id="engineName" value="vLLM">
+                        <input type="text" id="engineName" value="">
                     </div>
                     <div class="input-field">
                         <label for="engineModelName">模型名称：</label>
-                        <input type="text" id="engineModelName" value="cpatonn/Seed-OSS-36B-Instruct-AWQ-8bit">
+                        <input type="text" id="engineModelName" value="">
                     </div>
                 </div>
                 <!-- 接口信息 -->
@@ -539,11 +539,11 @@
                     <div class="input-header">接口信息</div>
                     <div class="input-field">
                         <label for="requestUrl">请求地址：</label>
-                        <input type="text" id="requestUrl" value="http://192.168.9.99:8080/v1/chat/completions">
+                        <input type="text" id="requestUrl" value="">
                     </div>
                     <div class="input-field">
                         <label for="modelName">模型名称：</label>
-                        <input type="text" id="modelName" value="Seed-OSS-36B-Instruct">
+                        <input type="text" id="modelName" value="">
                     </div>
                     <div class="input-field">
                         <label for="apiKey">请求密钥：</label>
@@ -555,23 +555,23 @@
                     <div class="input-header">测试信息</div>
                     <div class="input-field">
                         <label for="minInputLength">输入长度最小值：</label>
-                        <input type="number" id="minInputLength" value="10000">
+                        <input type="number" id="minInputLength" value="">
                     </div>
                     <div class="input-field">
                         <label for="maxInputLength">输入长度最大值：</label>
-                        <input type="number" id="maxInputLength" value="50000">
+                        <input type="number" id="maxInputLength" value="">
                     </div>
                     <div class="input-field">
                         <label for="step">输入长度步长：</label>
-                        <input type="number" id="step" value="10000">
+                        <input type="number" id="step" value="">
                     </div>
                     <div class="input-field">
                         <label for="maxOutputLength">输出长度：</label>
-                        <input type="number" id="maxOutputLength" value="128">
+                        <input type="number" id="maxOutputLength" value="">
                     </div>
                     <div class="input-field">
                         <label for="structureLength">模型结构长度：</label>
-                        <input type="number" id="structureLength" value="4" placeholder="建议填写，常见值为 4">
+                        <input type="number" id="structureLength" value="" placeholder="建议填写，常见值为 4">
                     </div>
                     <div id="lengthTip">
                         输入长度 = 系统提示词长度 + 用户提示词长度 + 模型结构长度
@@ -628,6 +628,29 @@
         let testResults = [];
         let abortController = null;
 
+        // 默认参数设置
+        // ===============================================================================
+        // API 端点和模型名称配置
+        const default_openai_apiUrl = 'http://127.0.0.1:8080/v1/chat/completions';       // OpenAI 兼容 API 的 URL 地址
+        const default_openai_modelName = 'Seed-OSS-36B-Instruct';                           // OpenAI 兼容 API 所使用的模型名称或路径
+        const default_api_key = '';                                                         // 访问 API 所需的认证密钥，如果不需要则可以留空
+        // 文本生成长度控制参数 (整数)
+        const default_minLength = 1024;                                                    // 生成文本的最小长度（例如，token 或字符数）
+        const default_maxLength = 8192;                                                    // 生成文本的最大长度（例如，token 或字符数）
+        const default_step = 1024;                                                        // 每次提示词长度增加的步长
+        const default_outputLength = 128;                                                   // 期望输出的文本长度
+        const default_structureLength = 4;                                                  // 模型结构长度
+        // 服务器信息配置
+        const default_processor = 'Intel i9-7900X';                                         // 处理器型号
+        const default_mainboard = 'C9X299-PGF';                                             // 主板型号
+        const default_memory = 'DDR4 3200 16G x2';                                          // 内存配置
+        const default_gpu = 'Tesla T10 125W x4';                                            // 显卡配置
+        const default_system = 'Ubuntu 24.04.3 LTS';                                        // 操作系统版本
+        // 推理引擎信息配置
+        const default_engineName = 'vLLM';                                                  // 推理引擎名称
+        const default_engineModelName = 'cyankiwi/Seed-OSS-36B-Instruct-AWQ-8bit';           // 模型名称
+        // ===============================================================================
+
         // 获取 DOM 元素
         const startButton = document.getElementById('startButton');
         const downloadChartButton = document.getElementById('downloadChartButton');
@@ -639,10 +662,32 @@
         const summaryDisplayEl = document.getElementById('summaryDisplay');
         const lengthTipEl = document.getElementById('lengthTip');
 
-        startButton.addEventListener('click', () => {
+        startButton.addEventListener('click', async () => {
             if (isTesting) {
                 stopTest();
             } else {
+                // 保存当前配置到 localStorage
+                try {
+                    localStorage.setItem('llmPerfTestConfigRequestUrl', document.getElementById('requestUrl').value);
+                    localStorage.setItem('llmPerfTestConfigModelName', document.getElementById('modelName').value);
+                    localStorage.setItem('llmPerfTestConfigApiKey', document.getElementById('apiKey').value);
+                    localStorage.setItem('llmPerfTestConfigMinInputLength', document.getElementById('minInputLength').value);
+                    localStorage.setItem('llmPerfTestConfigMaxInputLength', document.getElementById('maxInputLength').value);
+                    localStorage.setItem('llmPerfTestConfigStep', document.getElementById('step').value);
+                    localStorage.setItem('llmPerfTestConfigMaxOutputLength', document.getElementById('maxOutputLength').value);
+                    localStorage.setItem('llmPerfTestConfigStructureLength', document.getElementById('structureLength').value);
+                    localStorage.setItem('llmPerfTestConfigProcessor', document.getElementById('processor').value);
+                    localStorage.setItem('llmPerfTestConfigMainboard', document.getElementById('mainboard').value);
+                    localStorage.setItem('llmPerfTestConfigMemory', document.getElementById('memory').value);
+                    localStorage.setItem('llmPerfTestConfigGpu', document.getElementById('gpu').value);
+                    localStorage.setItem('llmPerfTestConfigSystem', document.getElementById('system').value);
+                    localStorage.setItem('llmPerfTestConfigEngineName', document.getElementById('engineName').value);
+                    localStorage.setItem('llmPerfTestConfigEngineModelName', document.getElementById('engineModelName').value);
+                    console.log('已保存当前配置到localStorage');
+                } catch (e) {
+                    console.warn("无法保存配置到 localStorage:", e);
+                }
+                
                 startTest();
             }
         });
@@ -1818,6 +1863,53 @@
 
         }
 
+        // 从localStorage加载上次保存的配置
+        function setDefaultValues() {
+            // 从 localStorage 加载保存的配置
+            const savedRequestUrl = localStorage.getItem('llmPerfTestConfigRequestUrl');
+            const savedModelName = localStorage.getItem('llmPerfTestConfigModelName');
+            const savedApiKey = localStorage.getItem('llmPerfTestConfigApiKey');
+            const savedMinInputLength = localStorage.getItem('llmPerfTestConfigMinInputLength');
+            const savedMaxInputLength = localStorage.getItem('llmPerfTestConfigMaxInputLength');
+            const savedStep = localStorage.getItem('llmPerfTestConfigStep');
+            const savedMaxOutputLength = localStorage.getItem('llmPerfTestConfigMaxOutputLength');
+            const savedStructureLength = localStorage.getItem('llmPerfTestConfigStructureLength');
+            const savedProcessor = localStorage.getItem('llmPerfTestConfigProcessor');
+            const savedMainboard = localStorage.getItem('llmPerfTestConfigMainboard');
+            const savedMemory = localStorage.getItem('llmPerfTestConfigMemory');
+            const savedGpu = localStorage.getItem('llmPerfTestConfigGpu');
+            const savedSystem = localStorage.getItem('llmPerfTestConfigSystem');
+            const savedEngineName = localStorage.getItem('llmPerfTestConfigEngineName');
+            const savedEngineModelName = localStorage.getItem('llmPerfTestConfigEngineModelName');
+
+            // 如果 localStorage 有数据则使用，否则使用默认数据
+            document.getElementById('requestUrl').value = savedRequestUrl || default_openai_apiUrl;
+            document.getElementById('modelName').value = savedModelName || default_openai_modelName;
+            document.getElementById('apiKey').value = savedApiKey || default_api_key;
+            document.getElementById('minInputLength').value = savedMinInputLength || default_minLength;
+            document.getElementById('maxInputLength').value = savedMaxInputLength || default_maxLength;
+            document.getElementById('step').value = savedStep || default_step;
+            document.getElementById('maxOutputLength').value = savedMaxOutputLength || default_outputLength;
+            document.getElementById('structureLength').value = savedStructureLength || default_structureLength;
+            document.getElementById('processor').value = savedProcessor || default_processor;
+            document.getElementById('mainboard').value = savedMainboard || default_mainboard;
+            document.getElementById('memory').value = savedMemory || default_memory;
+            document.getElementById('gpu').value = savedGpu || default_gpu;
+            document.getElementById('system').value = savedSystem || default_system;
+            document.getElementById('engineName').value = savedEngineName || default_engineName;
+            document.getElementById('engineModelName').value = savedEngineModelName || default_engineModelName;
+
+            // 提示用户已加载配置
+            if (savedRequestUrl) {
+                console.log('已从localStorage恢复上次的配置');
+            }
+        }
+        
+        window.onload = function () {
+            // 页面加载时自动加载配置
+            setDefaultValues();
+            updateSummaryDisplay();
+        };
     </script>
 
 </body>
